@@ -5,24 +5,23 @@ using PixelestEditor.Extension;
 using System.Diagnostics;
 using System.Linq;
 using System.Media;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using DPoint = System.Drawing.Point;
 
 namespace PixelestEditor
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         int cellsToColor = 0;
-        ImageInfoData info;
-        ColoringScenarioData scenario;
-        ColorBoolMapData map;
-        SoundPlayer player;
+        private readonly ImageInfoData info;
+        private readonly ColoringScenarioData scenario;
+        private ColorBoolMapData map;
+        private readonly SoundPlayer player;
 
         public MainWindow()
         {
             InitializeComponent();
+            
             player = new SoundPlayer(@"C:\Users\Xiaomi\Music\demo-2.wav");
             player.Load();
 
@@ -40,9 +39,8 @@ namespace PixelestEditor
             scenario = info.Scenarios.First(s => s.Name == "Simple");
             map = scenario.BoolMaps.Dequeue();
             cellsToColor = PrepareForColoring(map);
-            Debug.WriteLine($"Prepared {cellsToColor} cells.");
             
-            this.Content = Canvas;
+            Debug.WriteLine($"Prepared {cellsToColor} cells.");
         }
 
         private void PixelActivated(PixelView view, DPoint point)
@@ -55,9 +53,15 @@ namespace PixelestEditor
 
             if (cellsToColor == 0)
             {
-                // todo handle win
-                map = scenario.BoolMaps.Dequeue();
-                cellsToColor = PrepareForColoring(map);
+                if (scenario.BoolMaps.TryDequeue(out var item))
+                {
+                    map = item;
+                    cellsToColor = PrepareForColoring(map);
+                }
+                else
+                {
+                    //todo show a message
+                }
             }
 
             Debug.WriteLine("cellsToColor:" + cellsToColor);
@@ -70,7 +74,7 @@ namespace PixelestEditor
 
             foreach (var item in Canvas.Children)
             {
-                PixelView pixel = item as PixelView;
+                var pixel = (PixelView) item;
 
                 int x = pixel.Point.X / Constants.PixelSize.Width;
                 int y = pixel.Point.Y / Constants.PixelSize.Height;

@@ -5,6 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixelestEditor"
         mc:Ignorable="d"
-        Title="PixelestEditor" Height="450" Width="800">
-    <Canvas x:Name="Canvas"/>
+        Title="PixelestEditor" Height="500" Width="500">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Button x:Name="LoadImageButton" Content="Load image" Grid.Column="0" Grid.Row="0"/>
+        <Button x:Name="RestartButton" Grid.Column="1" Grid.Row="0" Content="Restart"/>
+        <Canvas x:Name="Canvas" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"/>
+    </Grid>
 </Window>

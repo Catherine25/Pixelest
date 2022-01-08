@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using DPoint = System.Drawing.Point;
 
 namespace PixelestEditor
 {
-    public partial class PixelView : UserControl
+    public partial class PixelView
     {
-        public readonly Color DefaultColor = Colors.White;
+        private readonly Color defaultColor = Colors.White;
 
         public Action<PixelView, DPoint> Activated;
         public DPoint Point;
@@ -19,7 +18,7 @@ namespace PixelestEditor
         {
             InitializeComponent();
 
-            Rect.Fill = new SolidColorBrush(DefaultColor);
+            Rect.Fill = new SolidColorBrush(defaultColor);
 
             Point = position;
 
@@ -28,17 +27,16 @@ namespace PixelestEditor
             Width = Constants.PixelSize.Width;
             Height = Constants.PixelSize.Height;
 
-            Rect.MouseDown += Rect_MouseDown;
-            TextBox.MouseDown += Rect_MouseDown;
+            TextBox.MouseEnter += (_, _) => Activate();
         }
 
-        private void Rect_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Activate()
         {
-            if(IsActive)
-            {
-                Activated(this, Point);
-                IsActive = false;
-            }
+            if (!IsActive)
+                return;
+            
+            Activated(this, Point);
+            IsActive = false;
         }
 
         public bool IsActive
@@ -47,29 +45,16 @@ namespace PixelestEditor
             set
             {
                 isActive = value;
-
-                if(isActive)
-                {
-                    //BorderBrush = new SolidColorBrush(Colors.Black);
-                    //BorderThickness = new System.Windows.Thickness(1);
-                    TextBox.Content = "X";
-                }
-                else
-                {
-                    //BorderBrush = null;
-                    //BorderThickness = new System.Windows.Thickness(0);
-                    TextBox.Content = "";
-                }
+                TextBox.Content = isActive ? "X" : "";
             }
         }
         private bool isActive;
 
         public Color Color
         {
-            get => Rect.GetColor() ?? DefaultColor;
+            get => Rect.GetColor() ?? defaultColor;
             set
             {
-                //TextBox.Background = new SolidColorBrush(value);
                 Rect.SetColor(value);
                 IsActive = false;
             }
