@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Controls;
 using System.Windows.Media;
+using PixelestEditor.Extensions;
 using DPoint = System.Drawing.Point;
 
 namespace PixelestEditor
@@ -22,10 +23,11 @@ namespace PixelestEditor
 
             Point = position;
 
-            Canvas.SetLeft(this, Point.X);
-            Canvas.SetTop(this, Point.Y);
-            Width = Constants.PixelSize.Width;
-            Height = Constants.PixelSize.Height;
+            Grid.SetColumn(this, Point.X);
+            Grid.SetRow(this, Point.Y);
+
+            IsActive = false;
+            Colored = false;
 
             TextBox.MouseEnter += (_, _) => Activate();
         }
@@ -38,6 +40,8 @@ namespace PixelestEditor
             Activated(this, Point);
             IsActive = false;
         }
+        
+        public bool Colored { get; private set; }
 
         public bool IsActive
         {
@@ -57,6 +61,7 @@ namespace PixelestEditor
             {
                 Rect.SetColor(value);
                 IsActive = false;
+                Colored = true;
             }
         }
     }

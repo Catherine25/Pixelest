@@ -8,7 +8,7 @@ using static Pixelest.Extension.ColorConstants;
 
 namespace Pixelest.Builder
 {
-    public static class WalktrougthBuilder
+    public static class WalktroughBuilder
     {
         // todo
         // public static Walktrough Build(SKBitmap bitmap, Size size)
@@ -40,18 +40,19 @@ namespace Pixelest.Builder
         //     // p.Color = ;
         //     // step1.Palettes.Add(p);
         // }
-
-        // private static Step CreateNewStep(PixMap pixMap, Size size, int lightness)
+        
+        // public static Walkthrough Build(SKBitmap bitmap, Size size)
         // {
-        //     Step step = new Step();
-        //     step.CurrentMaxLightness = lightness;
-        //     step.Palettes;
-        //     Boolmap b = new Boolmap(pixMap, size, , lightness);
-        //     throw new NotImplementedException();
+        //     var pixMap = GetPixMap(bitmap, size);
+        //     var w = new Walkthrough();
+        //
+        //     List<int> availableLightnesses = pixMap.GetLightnesses();
+        //
+        //     foreach (var lightness in availableLightnesses)
+        //     {
+        //         // w.Steps.Add(new Step() { });
+        //     }
         // }
-
-        // static IOrderedEnumerable<HuesByLightness> OrderByMaxLightness(List<HuesByLightness> huesByLightnesses, bool lightestFirst = false) =>
-        // lightestFirst ? huesByLightnesses.OrderByDescending(h => h.Lightness) : huesByLightnesses.OrderBy(h => h.Lightness);
 
         static PixMap GetPixMap(SkiaSharp.SKBitmap bitmap, Size size)
         {

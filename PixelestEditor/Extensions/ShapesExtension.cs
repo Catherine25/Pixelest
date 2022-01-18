@@ -1,7 +1,7 @@
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace PixelestEditor
+namespace PixelestEditor.Extensions
 {
     public static class ShapesExtension
     {

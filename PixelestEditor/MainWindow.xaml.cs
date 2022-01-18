@@ -1,93 +1,90 @@
-﻿using Pixelest;
-using Pixelest.Json;
-using Pixelest.Model;
-using PixelestEditor.Extension;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using PixelestEditor.Extensions;
 using System.Linq;
-using System.Media;
-using System.Windows.Media;
+using System.Windows.Controls;
+using Pixelest.Extension;
+using PixelestEditor.Model.Walktroughs;
+using PixelestEditor.Services;
+using SkiaSharp;
 using DPoint = System.Drawing.Point;
 
 namespace PixelestEditor
 {
     public partial class MainWindow
     {
-        int cellsToColor = 0;
-        private readonly ImageInfoData info;
-        private readonly ColoringScenarioData scenario;
-        private ColorBoolMapData map;
-        private readonly SoundPlayer player;
+        private readonly SoundService soundService;
+        private readonly ImageService imageService;
+
+        private SKBitmap bitmap;
+
+        private IWalkthrough walkthrough;
+        private int cellsToColor;
 
         public MainWindow()
         {
             InitializeComponent();
             
-            player = new SoundPlayer(@"C:\Users\Xiaomi\Music\demo-2.wav");
-            player.Load();
-
-            info = Serializer.DeserializeFromFile<ImageInfoData>(@"C:\Users\Xiaomi\Pictures\demo-sprites\demo-5.txt");
-
-            // init pixels
-            for (int i = 0; i < info.Bitmap.Size.Width; i++)
-                for (int j = 0; j < info.Bitmap.Size.Height; j++)
-                {
-                    var pixel = new PixelView(new DPoint(i * Constants.PixelSize.Width, j * Constants.PixelSize.Height));
-                    pixel.Activated += PixelActivated;
-                    Canvas.Children.Add(pixel);
-                }
-
-            scenario = info.Scenarios.First(s => s.Name == "Simple");
-            map = scenario.BoolMaps.Dequeue();
-            cellsToColor = PrepareForColoring(map);
+            this.Log(Environment.CurrentDirectory);
             
-            Debug.WriteLine($"Prepared {cellsToColor} cells.");
+            imageService = new ImageService();
+            soundService = new SoundService(Environment.CurrentDirectory + "/Assets/demo-2.wav");
+            
+            ScenariosCombobox.Items.Add(IWalkthrough.Simple);
+            ScenariosCombobox.SelectedIndex = 0;
+
+            LoadImageButton.Click += (_, _) => LoadImage();
+            RestartButton.Click += (_, _) =>  StartScenario();
         }
 
-        private void PixelActivated(PixelView view, DPoint point)
+        private void LoadImage()
         {
-            view.Color = new Color().FromDColor(map.Color);
+            bitmap = imageService.LoadBitmap(Environment.CurrentDirectory + "/Assets/demo-1.png");
 
-            player.Play();
-
-            cellsToColor--;
-
-            if (cellsToColor == 0)
-            {
-                if (scenario.BoolMaps.TryDequeue(out var item))
-                {
-                    map = item;
-                    cellsToColor = PrepareForColoring(map);
-                }
-                else
-                {
-                    //todo show a message
-                }
-            }
-
-            Debug.WriteLine("cellsToColor:" + cellsToColor);
-            Debug.WriteLine(scenario.BoolMaps.Count);
+            string value = ScenariosCombobox.SelectedValue.ToString();
+            walkthrough = imageService.BuildWalkthrough(value, bitmap);
         }
 
-        private int PrepareForColoring(ColorBoolMapData boolMap)
+        private void StartScenario()
         {
-            int count = 0;
+            PixelGrid.Init(bitmap.GetSize(), walkthrough,  soundService);
+            
+            if (walkthrough.Name != IWalkthrough.Simple)
+                return;
+            
+            var simple = (SimpleWalkthrough) walkthrough;
+            var map = simple.ColorMap;
+            var colors = map.Select(x => x.Color);
 
-            foreach (var item in Canvas.Children)
+            PreparePalette(colors.ToList());
+            
+            // cellsToColor = PrepareForColoring(colorMap);
+            this.Log($"Prepared {colors.Count()} cells.");
+        }
+
+        private void PreparePalette(IReadOnlyList<ColorData> colors)
+        {
+            for (int i = 0; i < colors.Count; i++)
             {
-                var pixel = (PixelView) item;
+                var color = colors[i];
 
-                int x = pixel.Point.X / Constants.PixelSize.Width;
-                int y = pixel.Point.Y / Constants.PixelSize.Height;
-                if (boolMap.Values[x][y])
+                var paletteColor = new PaletteView
                 {
-                    Debug.WriteLine($"{x},{y}");
-                    Debug.WriteLine("active");
-                    pixel.IsActive = true;
-                    count++;
-                }
-            }
+                    Color = color
+                };
+                
+                paletteColor.Activated += PaletteColorOnActivated;
+                
+                Grid.SetColumn(paletteColor, i);
 
-            return count;
+                Palette.Children.Add(paletteColor);
+                Palette.ColumnDefinitions.Add(new ColumnDefinition());
+            }
+        }
+
+        private void PaletteColorOnActivated(ColorData color)
+        {
+            cellsToColor = PixelGrid.HighlightPixelsByColor(color);
         }
     }
 }

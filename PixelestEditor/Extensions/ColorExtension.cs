@@ -2,7 +2,7 @@ using System.Windows.Media;
 using SkiaSharp;
 using DColor = System.Drawing.Color;
 
-namespace PixelestEditor.Extension
+namespace PixelestEditor.Extensions
 {
     public static class ColorExtension
     {

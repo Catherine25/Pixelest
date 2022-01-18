@@ -1,6 +1,6 @@
 using System.Windows.Controls;
 
-namespace PixelestEditor.Extension
+namespace PixelestEditor.Extensions
 {
     public static class GridExtension
     {
